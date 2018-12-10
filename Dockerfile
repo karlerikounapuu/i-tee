@@ -2,7 +2,7 @@ FROM ruby:2.5.1
 MAINTAINER margus.ernits@rangeforce.com
 
 RUN apt-get update -qq && \
-    apt-get install -y --no-install-recommends build-essential sudo openssh-client libyaml-0-2 libgmp-dev default-libmysqlclient-dev libsqlite3-dev bundler nodejs \
+    apt-get install -y --no-install-recommends build-essential sudo openssh-client libyaml-0-2 libgmp-dev default-libmysqlclient-dev libsqlite3-dev bundler nodejs cron screen \
     && apt-get clean autoclean \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/* \
@@ -40,7 +40,11 @@ COPY /docker/application.rb /var/www/i-tee/config/application.rb
 COPY /docker/devise.rb /var/www/i-tee/config/initializers/devise.rb
 COPY /docker/production.rb /var/www/i-tee/config/environments/production.rb
 
+# Install lab killing cron job
+RUN echo "* * * * * . /etc/environment && bash -c 'cd /var/www/i-tee/ && rake RAILS_ENV=production expired_labs:search_and_destroy > /var/www/i-tee/cron.log 2>&1'" | crontab -
+
 RUN RAILS_ENV=production bundle exec rake SECRET_KEY_BASE=for_asset_build  assets:precompile
 EXPOSE 80
-CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]
+
+CMD env >> /etc/environment && /usr/bin/screen -dmS cronjob /usr/sbin/cron -f; bundle exec puma -C config/puma.rb
 

@@ -1,4 +1,12 @@
 <h3>Listing users</h3>
+<%= form_tag(users_path, method: :get) do %>
+  <%= label_tag :term, "Search:" %>
+  <%= text_field_tag :term, nil, :placeholder => "username, name or email" %>
+  <%= submit_tag 'Search' %>
+  <% if params[:commit] == "Search" %>
+  <%= submit_tag "Clear" %>
+  <% end %>
+<% end %>
 <div id="index_t">
   <table>
     <thead>

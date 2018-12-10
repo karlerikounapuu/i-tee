@@ -341,7 +341,7 @@ class LabUsersController < ApplicationController
   private #-----------------------------------------------
 
   def labuser_params
-    params.require(:lab_user).permit(:id, :lab_id, :user_id, :result, :start, :pause, :end, :last_activity, :activity, :g_user, :g_username, :g_password, :vta_setup, :uuid, :token)
+    params.require(:lab_user).permit(:id, :lab_id, :user_id, :result, :start, :pause, :end, :last_activity, :activity, :g_user, :g_username, :g_password, :vta_setup, :uuid, :token, :retention_time)
   end
 
   def get_user

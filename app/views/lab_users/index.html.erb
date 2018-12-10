@@ -9,6 +9,7 @@
         <th><%=link_to('User', :controller=>'lab_users',:action=>'index', :sort_by=>'user_id', :dir=>@dir)%></th>
         <th><%=link_to('Start', :controller=>'lab_users',:action=>'index', :sort_by=>'start', :dir=>@dir)%></th>
         <th><%=link_to('End', :controller=>'lab_users',:action=>'index', :sort_by=>'end', :dir=>@dir)%></th>
+        <th><%=link_to('Retention', :controller=>'lab_users',:action=>'index', :sort_by=>'retention', :dir=>@dir)%></th>
         <th><%=link_to('Last activity', :controller=>'lab_users',:action=>'index', :sort_by=>'last_activity', :dir=>@dir)%></th>
         <th></th> 
         <th></th>
@@ -23,6 +24,7 @@
         </td>
         <td><span title="<%= lab_user.end %>"><%= distance_of_time_in_words(Time.now, lab_user.end.to_time )+' ago' if lab_user.end %></span>
         </td>
+        <td><span title="<%= lab_user.retention_time %>"><%= lab_user.retention_time.blank? ? "N/A" : lab_user.retention_time.in_time_zone("Europe/Tallinn").to_formatted_s(:long) %></span>
         <td><% if lab_user.activity && lab_user.last_activity %><%= lab_user.activity %> @ <%= lab_user.last_activity %><%end%></td>
         <td class="narrow">
           <% unless lab_user.lab.blank? %>

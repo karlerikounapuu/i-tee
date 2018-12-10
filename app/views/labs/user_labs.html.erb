@@ -60,7 +60,12 @@
       <!-- started at: <%#=@lab_user.start%><br/>
           ended at: <%#=@lab_user.end%><br/>-->
     <%if !@lab_user.end  %>
-                <div>
+      <% if @lab_user.retention_time.present? %>
+        <div>
+          <p>Lab is automatically ended & closed at <b><%= @lab_user.retention_time.in_time_zone("Europe/Tallinn").to_formatted_s(:long) %></b>. Good luck!</p>
+        </div>
+      <% end %>
+    <div>
       <h3>Virtual machines</h3>
       <%= 'There are no machines allocated for this lab' if @lab_user.vms.count==0 %>
       <% @lab_user.vms_view.each do |vm| %>

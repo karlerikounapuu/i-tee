@@ -40,4 +40,4 @@ all_layouts.each do |layout|
   Rails.application.config.assets.precompile += ["#{layout}_layout.js", "#{layout}_layout.css"]
 end
 
-Rails.application.config.assets.precompile += ['marked.css', "reset.css", 'prettify.js', 'prettify.css', 'EIK.css', 'vequrity.css']
+Rails.application.config.assets.precompile += ['marked.css', "reset.css", 'prettify.js', 'prettify.css', 'TTU.css', 'EIK.css', 'vequrity.css']

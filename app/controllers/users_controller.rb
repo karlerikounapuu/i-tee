@@ -6,9 +6,11 @@ class UsersController < ApplicationController
 
   def index
     set_order_by
-    #@users= User.find_by_sql("select id, username, last_sign_in_at, ldap, email, last_sign_in_ip from users")
-    #@users= @users.paginate(:page=>params[:page], :per_page=>10).order(order)
-    @users = User.select('id, name, username, role, last_sign_in_ip, last_sign_in_at, ldap, email, authentication_token, token_expires').order(@order).paginate(:page=>params[:page], :per_page=>@per_page)
+    if params[:term] && params[:commit] == "Search"
+      @users = User.select('id, name, username, role, last_sign_in_ip, last_sign_in_at, ldap, email, authentication_token, token_expires').where('username LIKE ? or name LIKE ? or email LIKE ?', "%#{params[:term]}%", "%#{params[:term]}%", "%#{params[:term]}%").order(@order).paginate(:page=>params[:page], :per_page=>@per_page)
+    else
+      @users = User.select('id, name, username, role, last_sign_in_ip, last_sign_in_at, ldap, email, authentication_token, token_expires').order(@order).paginate(:page=>params[:page], :per_page=>@per_page)
+    end
     if params[:conditions]
       logger.info "FIND USER: #{params[:conditions].as_json}"
       users = User.where(params[:conditions].as_json)
@@ -143,9 +145,9 @@ private # -------------------------------------------------------
 
   def user_params
     if !params[:user].empty?
-      params.require(:user).permit(:id, :email, :password, :username, :name, :authentication_token, :token_expires, :ldap, :role)
+      params.require(:user).permit(:id, :email, :password, :username, :name, :authentication_token, :token_expires, :ldap, :role, :term, :commit)
     elsif !params[:new_user].empty?
-      params.require(:new_user).permit(:id, :email, :password, :username, :name, :authentication_token, :token_expires, :ldap, :role)
+      params.require(:new_user).permit(:id, :email, :password, :username, :name, :authentication_token, :token_expires, :ldap, :role, :term, :commit)
     end  
 
   end

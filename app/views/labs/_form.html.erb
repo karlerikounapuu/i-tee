@@ -20,7 +20,8 @@
     <%= f.label :description %><br />
     <%= f.text_area( :description,  :rows => 20) %>
   </div>
-   <div class="field">
+  <input type="checkbox" class="showconfig"> Show additional configuration<br><br>
+  <div class="field" id="configfield" style="display: none;">
     <%= f.label :config %><br />
     <%= f.text_area( :config,  :rows => 10, placeholder: '{"this":"Configuration JSON"}') %>
   </div>
@@ -36,6 +37,12 @@
     </div>
       <div class="field">
         <%= f.check_box( :endable)  %><%= f.label :endable %>
+      </div>
+      <div class="field">
+        <input type="checkbox" class="gitinit"> Initialize lab with Git<br>
+        <div id="git-repo-div" style="display: none;">
+          <br>Git repo: <input id="git-repo" type="text"></>
+        </div>
       </div>
       <hr/>
       <h4>Timing settings</h4>
@@ -166,3 +173,41 @@
   <%end%>
   </p>
 <%end%>
+<script>
+$(document).on('turbolinks:load', function() {
+  try {
+    var conf = JSON.parse($('#lab_config').val());
+    if(conf) {
+      $('.gitinit').prop('checked', true);
+      $('#git-repo-div').css('display','inline');
+      $('#git-repo').val(conf.git);
+    }
+  } catch {
+    console.log('No advanced JSON conf detected, therefore we don\'t populate shit');
+  }
+ })
+$('.gitinit').click(function() {
+    if( $(this).is(':checked')) {
+        $('#git-repo-div').css('display','inline');
+    } else {
+        $('#git-repo-div').css('display','none') ;
+    }
+});
+$('.showconfig').click(function() {
+    if( $(this).is(':checked')) {
+        $('#configfield').css('display','inline');
+    } else {
+        $('#configfield').css('display','none') ;
+    }
+});
+$('#git-repo').on('input', function() {
+  if($('#lab_config').val() == '') {
+    var conf = JSON.parse('{}');
+  } else {
+    var conf = JSON.parse($('#lab_config').val());
+  }
+  conf.git = $('#git-repo').val();
+  $('#lab_config').val(JSON.stringify(conf, null, 2));
+  //$('#lab_config').val(JSON.stringify(conf));
+});
+</script>

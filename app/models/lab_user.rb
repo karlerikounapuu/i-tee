@@ -10,6 +10,9 @@ class LabUser < ActiveRecord::Base
   before_destroy :end_lab
   before_create :create_uuid
 
+  # Keep track whether lab was granted by coupon or not
+  belongs_to :coupon, optional: true
+
   # used in labuser index json format to include info on ping 
   def with_ping
     data = JSON.parse(self.to_json)
@@ -78,7 +81,7 @@ class LabUser < ActiveRecord::Base
   end
 
 # create needed Vm-s based on the lab templates and set start to now
-  def start_lab
+  def start_lab(set_retention = true)
     lab = self.lab
     user = self.user
     loginfo = self.log_info.to_s
@@ -121,6 +124,27 @@ class LabUser < ActiveRecord::Base
               logger.error result
               return {success: false, message: 'unable to communicate with assistant'}
             end
+          end
+        end
+        # If redeem code was used to assign lab, we need to set retention timestamp
+        if set_retention && self.coupon.present?
+          begin
+            if self.coupon.still_valid?
+              unless self.coupon.retention.nil? || self.coupon.retention == 0
+                retention = self.coupon.retention.to_int
+                self.retention_time = Time.now + retention.minutes
+              else
+                logger.info "Retention time is set to infinite."
+                self.retention_time = Time.now + 100.years
+              end
+            else
+              # Remove lab the next minute via Rake task
+              self.retention_time = Time.now
+              return {success: false, message: "This lab is no longer available. Coupon usage timeframe is over."}
+            end
+          rescue Exception => e
+            logger.error "Error when assigning retention time to Labuser #{self.id}: #{e}"
+            return {success: false, message: "Unable to set retention time for lab."}
           end
         end
       	self.save
@@ -188,7 +212,7 @@ class LabUser < ActiveRecord::Base
     end
   end
 
-  def restart_lab    
+  def restart_lab(set_retention = false)
     loginfo = self.log_info.to_s
     logger.info "LAB RESTART CALLED: #{loginfo}"
     self.end_lab
