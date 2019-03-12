@@ -1,6 +1,6 @@
 namespace :expired_labs do
   desc "Ends & destroys labs that have expired (retention is up)"
-  task :search_and_destroy => :environment do
+  task :search_and_destroy_reverse => :environment do
 
   	# Find labs that have retention due
     lab_users = LabUser.where("retention_time < ?", Time.now)
