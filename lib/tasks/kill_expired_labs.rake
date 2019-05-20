@@ -20,7 +20,7 @@ namespace :expired_labs do
     	  		failed_labs+=1
     	  	end
     	  else
-    	  	Rails.logger.warning "Unable to kill lab_user #{lab_user.id} labs"
+    	  	Rails.logger.info "Unable to kill lab_user #{lab_user.id} labs"
     	  	failed_labusers+=1
     	  end
     	end
